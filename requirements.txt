@@ -1,0 +1,8 @@
+Flask==2.3.3
+langchain==0.3.17  # or the latest version compatible with your setup
+langchain-google-genai==2.0.9  # or the latest version compatible with your setup
+PyPDF2==1.26.0
+requests==2.28.1
+beautifulsoup4==4.13.3
+python-dotenv==0.20.0
+pydantic==2.7.4  # Ensure this is compatible with langchain

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with PDF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .chat-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 75%;
+            padding: 12px 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        button {
+            width: 20%;
+            padding: 12px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+
+        .error {
+            color: #d9534f;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            color: #28a745;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .loading {
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                flex-direction: column;
+            }
+
+            input[type="text"], button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat with PDF</h1>
+    <div class="chat-container">
+        <form id="questionForm" class="form-container">
+            <input type="text" id="question" placeholder="Ask a question..." required>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="response" class="loading">Waiting for your question...</div>
+    </div>
+
+    <script>
+        document.getElementById('questionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const question = document.getElementById('question').value;
+
+            // Show loading message
+            document.getElementById('response').classList.remove('success', 'error');
+            document.getElementById('response').classList.add('loading');
+            document.getElementById('response').innerText = "Processing your question...";
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // If response is not OK (status code 200-299), throw an error
+                    throw new Error('Server error: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show response or error message
+                document.getElementById('response').classList.remove('loading');
+                if (data.reply) {
+                    document.getElementById('response').classList.add('success');
+                    document.getElementById('response').innerText = data.reply;
+                } else {
+                    document.getElementById('response').classList.add('error');
+                    document.getElementById('response').innerText = "An unexpected error occurred.";
+                }
+            })
+            .catch(error => {
+                document.getElementById('response').classList.remove('loading');
+                document.getElementById('response').classList.add('error');
+                document.getElementById('response').innerText = "Error: " + error.message;
+            });
+        });
+    </script>
+</body>
+</html>
